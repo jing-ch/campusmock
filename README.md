@@ -43,3 +43,7 @@ Request access from the project owner.
 Supabase project: `https://bcwegwxwyaquycsiyhkx.supabase.co`
 Request access from the project owner.  
 You can view tables visualized on browser.
+
+## google form
+
+url: form link: https://docs.google.com/forms/d/e/1FAIpQLSdlWd0dXB5bMqNm-0bD9uEAz3QpR_8DU50fl_3a0ZdXhpDU4A/viewform?usp=publish-editor
