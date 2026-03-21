@@ -413,3 +413,7 @@ https://<railway-url>/accept?token=<uuid>
 - Branch naming: `feature/<n>` e.g. `feature/webhook`, `feature/matching`
 - Pull from `main` at the start of every work session
 - `.env` is in `.gitignore` — use `.env.example` with placeholder values
+
+### 14. Local Environment
+
+Local development uses Docker. See `Dockerfile` in repo root.
