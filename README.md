@@ -2,8 +2,11 @@
 
 Peer-to-peer mock interview matching for NEU students. hackathon project.
 
+See docs/prd for full product requirement document.
+
 **Stack:** Python, FastAPI, PostgreSQL (Supabase), SendGrid, Railway, Docker
 
+See docs/tdd for full technical design document.
 ---
 
 ## Local Setup
