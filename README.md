@@ -17,6 +17,7 @@ Peer-to-peer mock interview matching for NEU students. hackathon project.
 ## Environment Variables
 
 See `.env.example` for required variables.
+Request credential values from teammate.  
 
 ## Git Workflow
 
@@ -28,6 +29,7 @@ See `.env.example` for required variables.
 ## Deployment
 
 Railway auto-deploys on every push to `main`.
+Request access from the project owner.  
 
 - Production URL: `https://campusmock-production.up.railway.app`
 - Health check: `https://campusmock-production.up.railway.app/health`
@@ -35,6 +37,6 @@ Railway auto-deploys on every push to `main`.
 
 ## Database
 
-Supabase project: `<your-supabase-url>`  
+Supabase project: `https://bcwegwxwyaquycsiyhkx.supabase.co`
 Request access from the project owner.  
-Tables: `users`, `requests`, `tokens`
+You can view tables visualized on browser.
