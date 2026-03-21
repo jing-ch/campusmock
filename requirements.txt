@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+supabase
+pymupdf
+anthropic
+sendgrid
+apscheduler
+python-dotenv
+httpx
+jinja2
+python-multipart
