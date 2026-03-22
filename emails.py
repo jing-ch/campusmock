@@ -14,6 +14,46 @@ sg = SendGridAPIClient(SENDGRID_API_KEY)
 # 统一发件人为已验证的邮箱
 FROM_EMAIL = 'example@northeastern.edu'
 
+def send_interviewer_pool_confirmation(interviewer_email: str):
+    """Post-submit email for interviewer-only users."""
+    message = Mail(
+        from_email=FROM_EMAIL,
+        to_emails=interviewer_email,
+        subject="[CampusMock] You're in the interviewer pool!",
+        plain_text_content=(
+            "Hi there,\n\n"
+            "You're in the pool! We'll reach out when someone needs you.\n\n"
+            "Thanks for helping your fellow NEU students.\n\n"
+            "— CampusMock Team"
+        ),
+    )
+    try:
+        response = sg.send(message)
+        logger.info(f"Pool confirmation sent to {interviewer_email}: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Failed to send pool confirmation to {interviewer_email}: {e}")
+
+
+def send_requester_queue_confirmation(requester_email: str):
+    """Post-submit email for requesters."""
+    message = Mail(
+        from_email=FROM_EMAIL,
+        to_emails=requester_email,
+        subject="[CampusMock] We're finding your match!",
+        plain_text_content=(
+            "Hi there,\n\n"
+            "You're in the queue — we're finding your best match. Hang tight!\n\n"
+            "We'll email you as soon as an interviewer accepts.\n\n"
+            "— CampusMock Team"
+        ),
+    )
+    try:
+        response = sg.send(message)
+        logger.info(f"Queue confirmation sent to {requester_email}: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Failed to send queue confirmation to {requester_email}: {e}")
+
+
 def send_match_invitation_email(interviewer_email: str, requester_major: str, accept_url: str):
     """发送匹配邀请 (英文版，中文注释)"""
     subject = "[CampusMock] New Mock Interview Invitation"

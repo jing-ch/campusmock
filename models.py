@@ -13,7 +13,8 @@ class UserUpsert(BaseModel):
     availability: str
     role: str  # "requester" | "interviewer_only"
     languages: Optional[str] = None
-    cv_parsed: Optional[dict] = None
+    cv_pdf: Optional[str] = None    # base64-encoded original PDF, kept as fallback
+    cv_parsed: Optional[dict] = None  # structured JSON parsed from CV by Claude
 
 
 class RequestInsert(BaseModel):
