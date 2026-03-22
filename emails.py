@@ -12,7 +12,7 @@ SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 sg = SendGridAPIClient(SENDGRID_API_KEY)
 
 # 统一发件人为已验证的邮箱
-FROM_EMAIL = 'li.z30@northeastern.edu'
+FROM_EMAIL = 'example@northeastern.edu'
 
 def send_match_invitation_email(interviewer_email: str, requester_major: str, accept_url: str):
     """发送匹配邀请 (英文版，中文注释)"""
