@@ -58,7 +58,7 @@ async def background_process_submission(payload: dict):
             # --- 核心修复：触发邮件发送 ---
             if not is_ai:
                 # 生产环境此 email 应从数据库读取，目前使用你的测试邮箱 [cite: 2026-03-21]
-                test_receiver = "jennyjingjing525@gmail.com" 
+                test_receiver = "example@gmail.com" 
                 # 构造模拟接受链接 [cite: 2026-03-21]
                 accept_url = f"http://127.0.0.1:8000/accept?req_id=test_{m['id']}"
                 
