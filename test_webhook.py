@@ -1,51 +1,89 @@
-import requests
-import base64
-import os
+"""
+Run with:
+    pip install pytest
+    pytest test_webhook.py -v
+"""
+import pytest
+from unittest.mock import patch
+from fastapi.testclient import TestClient
 
-# 配置本地 API 地址
-URL = "http://127.0.0.1:8000/webhook"
-# 指向你 templates 文件夹下的简历图片
-IMG_PATH = "templates/resume1.png" 
+from main import app
+from db import _get_client, upsert_user, insert_request
+from models import UserUpsert, RequestInsert
 
-def run_test():
-    if not os.path.exists(IMG_PATH):
-        print(f"错误: 找不到文件 {IMG_PATH}")
-        return
+client = TestClient(app)
 
-    # 1. 将图片转换为 Base64 字符串
-    with open(IMG_PATH, "rb") as f:
-        img_base64 = base64.b64encode(f.read()).decode('utf-8')
+TEST_EMAIL = "test_integration@northeastern.edu"
 
-    # 2. 构造模拟数据包
-    payload = {
-        "email": "li.z30@northeastern.edu", # 建议改为你的真实接收邮箱进行测试
-        "first_name": "Jenny",
-        "last_name": "Student",
-        "college": "Khoury College",
-        "major": "MS in AI",
-        "enrollment_semester": "2024sp",
-        "languages": "English,Mandarin",
-        "cultural_background": "East Asian",
-        "availability": "weekday_evening",
-        "cv_base64": img_base64,
-        "type": "requester", 
-        "intent": "request_interview",
-        "target_company": "Google",
-        "role": "Software Engineer Intern",
-        "focus_area": "Machine Learning",
-        "interview_availability": "Mon 7pm, Tue 8pm, Thu 6pm"
-    }
+DUMMY_USER = UserUpsert(
+    email=TEST_EMAIL,
+    first_name="Test",
+    last_name="User",
+    college="Khoury College",
+    major="Computer Science",
+    enrollment_semester="2024 Spring",
+    cultural_background="East Asian",
+    availability="weekday_evening",
+    role="requester",
+)
 
-    print(f"正在向 {URL} 发送测试数据包并触发视觉解析...")
-    
-    try:
-        response = requests.post(URL, json=payload)
-        print(f"服务器响应状态码: {response.status_code}")
-        print(f"服务器返回内容: {response.json()}")
-        print("\n--- 请查看 Uvicorn 终端，确认解析、匹配及 SendGrid 邮件日志 ---")
-        
-    except Exception as e:
-        print(f"发送失败: {e}")
+PARSED_SLOTS = [
+    "2026-01-27T18:00:00-08:00",
+    "2026-01-29T19:00:00-08:00",
+    "2026-02-01T14:00:00-08:00",
+]
 
-if __name__ == "__main__":
-    run_test()
+
+@pytest.fixture(autouse=True)
+def cleanup():
+    yield
+    db = _get_client()
+    user_rows = db.table("users").select("id").eq("email", TEST_EMAIL).execute().data
+    if user_rows:
+        db.table("requests").delete().eq("requester_id", user_rows[0]["id"]).execute()
+    db.table("users").delete().eq("email", TEST_EMAIL).execute()
+
+
+def test_upsert_user():
+    row = upsert_user(DUMMY_USER)
+    assert row["email"] == TEST_EMAIL
+    assert row["role"] == "requester"
+
+
+def test_insert_request():
+    user_row = upsert_user(DUMMY_USER)
+    req = RequestInsert(
+        requester_id=user_row["id"],
+        target_company="Google",
+        role_title="SWE Intern",
+        focus_area="LeetCode",
+        slot_1=PARSED_SLOTS[0],
+        slot_2=PARSED_SLOTS[1],
+        slot_3=PARSED_SLOTS[2],
+    )
+    row = insert_request(req)
+    assert row["status"] == "pending"
+    assert row["target_company"] == "Google"
+
+
+def test_webhook_returns_200():
+    with patch("webhook.parse_cv", return_value=None), \
+         patch("webhook.send_requester_queue_confirmation"), \
+         patch("webhook._parse_slots_to_iso", return_value=PARSED_SLOTS):
+        response = client.post("/api/v1/webhook", json={
+            "intent": "I want a mock interview (and I'll join the interviewer pool)",
+            "name": "Test User",
+            "college": "Khoury College",
+            "major": "Computer Science",
+            "enrollment": "2024 Spring",
+            "email_s2": TEST_EMAIL,
+            "cultural_background_s2": "East Asian",
+            "availability_s2": "weekday_evening",
+            "target_company": "Google",
+            "role": "SWE Intern",
+            "focus_area": "LeetCode",
+            "slot_1": "Mon Jan 27, 6pm PT",
+            "slot_2": "Wed Jan 29, 7pm PT",
+            "slot_3": "Sat Feb 1, 2pm PT",
+        })
+        assert response.status_code == 200

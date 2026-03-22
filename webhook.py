@@ -1,5 +1,9 @@
 import base64
+import json
 import logging
+import os
+
+import anthropic
 from fastapi import APIRouter, BackgroundTasks, Request
 
 from cv_parser import parse_cv
@@ -11,6 +15,37 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 REQUESTER_INTENT = "I want a mock interview (and I'll join the interviewer pool)"
+
+
+def _parse_slots_to_iso(*slots: str) -> list[str | None]:
+    """
+    Use Claude to convert natural language slot strings (e.g. "Mon Jan 27, 6pm PT")
+    to ISO 8601 timestamps (e.g. "2026-01-27T18:00:00-08:00").
+    Returns a list of the same length as input, with None for any that fail.
+    """
+    try:
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        response = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=256,
+            messages=[{
+                "role": "user",
+                "content": (
+                    "Convert these date/time strings to ISO 8601 format with timezone offset "
+                    "(e.g. 2026-01-27T18:00:00-08:00). "
+                    "Assume Pacific Time (PT) if no timezone is given. "
+                    "Assume year 2026 if not specified. "
+                    "Return ONLY a JSON array of strings in the same order, "
+                    "null for any that cannot be parsed.\n\n"
+                    f"{json.dumps(list(slots))}"
+                ),
+            }],
+        )
+        raw = response.content[0].text.strip().removeprefix("```json").removesuffix("```").strip()
+        return json.loads(raw)
+    except Exception as e:
+        logger.error(f"Slot parsing failed: {e}")
+        return [None] * len(slots)
 
 
 async def _process_submission(payload: dict):
@@ -58,14 +93,19 @@ async def _process_submission(payload: dict):
 
     # 3. Insert request + send confirmation email
     if is_requester:
+        slot_1, slot_2, slot_3 = _parse_slots_to_iso(
+            payload.get("slot_1", ""),
+            payload.get("slot_2", ""),
+            payload.get("slot_3", ""),
+        )
         req = RequestInsert(
             requester_id=user_row["id"],
             target_company=payload.get("target_company"),
             role_title=payload.get("role"),
             focus_area=payload.get("focus_area"),
-            slot_1=payload.get("slot_1", ""),
-            slot_2=payload.get("slot_2", ""),
-            slot_3=payload.get("slot_3", ""),
+            slot_1=slot_1,
+            slot_2=slot_2,
+            slot_3=slot_3,
             pref_cultural_bg=payload.get("pref_interviewer_bg"),
         )
         insert_request(req)

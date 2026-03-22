@@ -10,3 +10,4 @@ httpx
 jinja2
 python-multipart
 requests
+pytest
