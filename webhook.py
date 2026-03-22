@@ -34,11 +34,10 @@ async def _process_submission(payload: dict):
             logger.warning(f"CV parsing failed for {email} — PDF stored as fallback")
 
     # 2. Upsert user
-    name_parts = payload.get("name", "").split(None, 1)
     user = UserUpsert(
         email=email,
-        first_name=name_parts[0] if name_parts else "",
-        last_name=name_parts[1] if len(name_parts) > 1 else "",
+        first_name=payload.get("first_name", ""),
+        last_name=payload.get("last_name", ""),
         college=payload.get("college", ""),
         major=payload.get("major", ""),
         enrollment_semester=payload.get("enrollment", ""),

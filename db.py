@@ -35,7 +35,7 @@ def upsert_user(user: UserUpsert) -> dict:
 
 def insert_request(req: RequestInsert) -> dict:
     now = datetime.now(timezone.utc)
-    row = req.model_dump(exclude_none=True)
+    row = req.model_dump(mode='json', exclude_none=True)
     row["status"] = "pending"
     row["expires_at"] = (now + timedelta(hours=48)).isoformat()
     row["created_at"] = now.isoformat()

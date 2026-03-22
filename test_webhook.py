@@ -71,7 +71,8 @@ def test_webhook_returns_200():
          patch("webhook.send_requester_queue_confirmation"):
         response = client.post("/api/v1/webhook", json={
             "intent": "I want a mock interview (and I'll join the interviewer pool)",
-            "name": "Test User",
+            "first_name": "Test",
+            "last_name": "User",
             "college": "Khoury College",
             "major": "Computer Science",
             "enrollment": "2024 Spring",
