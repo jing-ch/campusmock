@@ -32,7 +32,7 @@ ANTHROPIC_API_KEY=your_claude_api_key
 SENDGRID_API_KEY=SG.your_sendgrid_key_here
 
 # Verified Sender Email (Must match your SendGrid Verified Identity)
-FROM_EMAIL=li.z30@northeastern.edu
+FROM_EMAIL=example@northeastern.edu
 
 # (Optional) Supabase Database Credentials
 SUPABASE_URL=your_project_url
