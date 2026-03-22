@@ -8,10 +8,17 @@ from models import UserUpsert, RequestInsert
 
 load_dotenv()
 
-_client: Client = create_client(
-    os.environ["SUPABASE_URL"],
-    os.environ["SUPABASE_SERVICE_KEY"],
-)
+_client: Client | None = None
+
+
+def _get_client() -> Client:
+    global _client
+    if _client is None:
+        _client = create_client(
+            os.environ["SUPABASE_URL"],
+            os.environ["SUPABASE_SERVICE_KEY"],
+        )
+    return _client
 
 
 def upsert_user(user: UserUpsert) -> dict:
@@ -19,7 +26,7 @@ def upsert_user(user: UserUpsert) -> dict:
     row["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     result = (
-        _client.table("users")
+        _get_client().table("users")
         .upsert(row, on_conflict="email")
         .execute()
     )
@@ -34,7 +41,7 @@ def insert_request(req: RequestInsert) -> dict:
     row["created_at"] = now.isoformat()
 
     result = (
-        _client.table("requests")
+        _get_client().table("requests")
         .insert(row)
         .execute()
     )
