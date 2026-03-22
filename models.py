@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel
 
 
@@ -22,7 +23,7 @@ class RequestInsert(BaseModel):
     target_company: Optional[str] = None
     role_title: Optional[str] = None
     focus_area: Optional[str] = None
-    slot_1: str
-    slot_2: str
-    slot_3: str
+    slot_1: Optional[datetime] = None
+    slot_2: Optional[datetime] = None
+    slot_3: Optional[datetime] = None
     pref_cultural_bg: Optional[str] = None

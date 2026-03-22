@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
 
 # 导入自定义模块
 from webhook import router as webhook_router
@@ -51,15 +52,12 @@ app = FastAPI(
 app.include_router(webhook_router, prefix="/api/v1", tags=["Matching"])
 app.include_router(accept_router, prefix="/api/v1", tags=["Acceptance"])
 
+templates = Jinja2Templates(directory="templates")
+
 # --- 5. 基础状态接口 (General Endpoints) ---
-@app.get("/", tags=["General"])
-async def root():
-    """根路径欢迎语"""
-    return {
-        "project": "CampusMock",
-        "status": "Running",
-        "docs": "/docs" # 提示用户访问 Swagger 文档 [cite: 2026-03-21]
-    }
+@app.get("/form", tags=["General"])
+async def form(request: Request):
+    return templates.TemplateResponse("form.html", {"request": request})
 
 @app.get("/health", tags=["General"])
 def health():

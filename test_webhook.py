@@ -68,22 +68,21 @@ def test_insert_request():
 
 def test_webhook_returns_200():
     with patch("webhook.parse_cv", return_value=None), \
-         patch("webhook.send_requester_queue_confirmation"), \
-         patch("webhook._parse_slots_to_iso", return_value=PARSED_SLOTS):
+         patch("webhook.send_requester_queue_confirmation"):
         response = client.post("/api/v1/webhook", json={
             "intent": "I want a mock interview (and I'll join the interviewer pool)",
             "name": "Test User",
             "college": "Khoury College",
             "major": "Computer Science",
             "enrollment": "2024 Spring",
-            "email_s2": TEST_EMAIL,
-            "cultural_background_s2": "East Asian",
-            "availability_s2": "weekday_evening",
+            "email": TEST_EMAIL,
+            "cultural_background": "East Asian",
+            "availability": "weekday_evening",
             "target_company": "Google",
             "role": "SWE Intern",
             "focus_area": "LeetCode",
-            "slot_1": "Mon Jan 27, 6pm PT",
-            "slot_2": "Wed Jan 29, 7pm PT",
-            "slot_3": "Sat Feb 1, 2pm PT",
+            "slot_1": "2026-01-27T18:00:00-08:00",
+            "slot_2": "2026-01-29T19:00:00-08:00",
+            "slot_3": "2026-02-01T14:00:00-08:00",
         })
         assert response.status_code == 200
