@@ -92,9 +92,19 @@ curl "http://127.0.0.1:8000/api/v1/accept?req_id=test_999&intv_id=002"
 
 ---
 
+feature/jenny
 ## 🏗 Roadmap
 - [x] Claude Vision Resume Parsing
 - [x] SendGrid Asynchronous Notification Pipeline
 - [x] Atomic Thread-Lock Claiming Mechanism
 - [x] 48h Timeout Falling back to AI Interviewer
 - [ ] **Next Step**: Transition In-memory states to persistent **MCP Database Layer (Supabase)**.
+
+Supabase project: `https://bcwegwxwyaquycsiyhkx.supabase.co`
+Request access from the project owner.  
+You can view tables visualized on browser.
+
+## google form
+
+url: form link: https://docs.google.com/forms/d/e/1FAIpQLSdlWd0dXB5bMqNm-0bD9uEAz3QpR_8DU50fl_3a0ZdXhpDU4A/viewform?usp=publish-editor
+main
