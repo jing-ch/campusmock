@@ -89,6 +89,18 @@ pytest tests/test_webhook.py -v
 
 ---
 
+## Manual Testing
+
+1. Start the server locally (Docker or without Docker)
+2. Open `http://localhost:8000/form` in your browser
+3. Fill in the form and submit
+4. Check:
+   - **Supabase dashboard → `users` table** — new row with `cv_parsed` populated
+   - **Supabase dashboard → `requests` table** — new row with `status = pending` (requesters only)
+   - **Your inbox** — confirmation email from SendGrid
+
+---
+
 ## Git Workflow
 
 - No direct push to `main`
