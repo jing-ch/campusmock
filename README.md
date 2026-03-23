@@ -1,110 +1,96 @@
-
-```markdown
-# 🚀 CampusMock: AI-Powered Peer Interview Matching
-
-CampusMock is a high-concurrency orchestration service built with **FastAPI**. It automates the transition from student resume submission to peer interviewer matching using **Claude 3.5 Haiku Vision** and an asynchronous **SendGrid** notification pipeline.
+# CampusMock: AI-Powered Peer Interview Matching
 
 ---
 
-## 📂 Project Structure & Responsibilities
+## Project Structure
 
-| File | Category | Responsibility |
-| :--- | :--- | :--- |
-| **`main.py`** | **Entry Point** | Manages FastAPI lifespan (Cron startup), logging, and API route registration. |
-| **`webhook.py`** | **Student API** | Entry point for students; handles resume uploads and triggers matching. |
-| **`accept.py`** | **Interviewer API** | Manages the "Claim" logic using **Atomic Thread Locks** to prevent double-booking. |
-| **`matching.py`** | **Logic Engine** | Implements the **Major Cluster Algorithm** for fuzzy matching. |
-| **`cv_parser.py`** | **AI Service** | Interfaces with Claude Vision to transform resume images into structured JSON. |
-| **`emails.py`** | **Messaging** | Handles SendGrid templates for invitations, confirmations, and 48h alerts. |
-| **`cron.py`** | **Background** | Runs the scheduler to fall back to **AI Interviewers** for unclaimed requests. |
+| File | Responsibility |
+| :--- | :--- |
+| `main.py` | FastAPI app entry point, lifespan management, route registration |
+| `webhook.py` | Receives form submission, parses CV, upserts user and request to Supabase, sends confirmation email |
+| `cv_parser.py` | Converts PDF to PNG, sends to Claude Vision, returns structured JSON |
+| `db.py` | Supabase client, `upsert_user` and `insert_request` functions |
+| `models.py` | Pydantic models for `UserUpsert` and `RequestInsert` |
+| `emails.py` | SendGrid email functions for confirmations, invitations, and timeout notifications |
+| `matching.py` | Matches requesters with interviewers |
+| `accept.py` | Handles interviewer accept flow with atomic locking |
+| `cron.py` | Background scheduler for 48-hour timeout logic |
 
 ---
 
-## ⚙️ Prerequisites & Setup
+## Setup
 
-### 1. Environment Variables (`.env`)
-Create a `.env` file in the root. **Do not use quotes** around values [cite: 2026-03-21].
+### Environment Variables
+
+Create a `.env` file in the root:
+
 ```env
-# Anthropic API for Resume Parsing
-ANTHROPIC_API_KEY=your_claude_api_key
-
-# SendGrid API for Email Orchestration
-SENDGRID_API_KEY=SG.your_sendgrid_key_here
-
-# Verified Sender Email (Must match your SendGrid Verified Identity)
-FROM_EMAIL=example@northeastern.edu
-
-# (Optional) Supabase Database Credentials
-SUPABASE_URL=your_project_url
-SUPABASE_SERVICE_KEY=your_key
+ANTHROPIC_API_KEY=your_key
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_KEY=your_service_key
+SENDGRID_API_KEY=your_sendgrid_key
+BASE_URL=https://your-railway-url.up.railway.app
+DATABASE_URL=your_postgres_connection_string
 ```
 
-### 2. Email Identity & Test Configuration
-* **Verify Sender**: Complete **Single Sender Verification** in your SendGrid dashboard.
-* **Update Sender**: Set `FROM_EMAIL` in `emails.py` to match your verified SendGrid identity.
-* **Update Test Recipient (Critical for Testing)**: 
-    * Open **`webhook.py`**.
-    * Locate the `background_process_submission` function.
-    * Change `test_receiver = "example@gmail.com"` to your **own email address** so you can receive the test invitation link.
+### Supabase Migrations
 
+Link your project and apply schema migrations:
 
-### 3. Local Installation
 ```bash
-pip install -r requirements.txt 
+supabase link --project-ref bcwegwxwyaquycsiyhkx
+supabase db push
+```
+
+To create a new migration:
+
+```bash
+# Add a new SQL file to supabase/migrations/ then push
+supabase db push
 ```
 
 ---
 
-## 🧪 Local Verification Steps
+## Running Locally
 
-### Step 1: Start Server
+### Option A — Docker
+
 ```bash
-uvicorn main:app --reload
+docker build -t campusmock .
+docker run --env-file .env -p 8000:8000 campusmock
 ```
-* **Base API URL**: `http://127.0.0.1:8000/api/v1`
-* **Health Check**: `http://127.0.0.1:8000/api/v1/health` (Returns dynamic timestamp).
-* **Docs**: `http://127.0.0.1:8000/docs` (Swagger UI).
 
-### Step 2: Test Matching & Email
+### Option B — Without Docker
+
 ```bash
-python test_webhook.py
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 ```
-* **Verification**: Check console for `Status Code 202` and your email for the invitation link.
 
-### Step 3: Test Atomic Locking (Concurrent Claiming)
-Open two terminals and run simultaneously to ensure only one person can claim:
+Form is available at `http://localhost:8000/form`.
+
+---
+
+## Running Tests
+
+### Docker
+
 ```bash
-# Terminal 1: Winner
-curl "http://127.0.0.1:8000/api/v1/accept?req_id=test_999&intv_id=001"
+docker run --env-file .env campusmock pytest tests/test_webhook.py -v
+```
 
-# Terminal 2: Already Claimed
-curl "http://127.0.0.1:8000/api/v1/accept?req_id=test_999&intv_id=002"
+### Without Docker
+
+```bash
+pytest tests/test_webhook.py -v
 ```
 
 ---
 
-## 🛠 Engineering & Workflow (NEU Hackathon Norms)
+## Git Workflow
 
-### Git Workflow
-* **No Direct Push**: Do not push directly to `main`.
-* **Branching**: Always create a `feature/<your-name>` branch.
-* **Pull Requests**: Merge to `main` only via Pull Requests.
-
----
-
-feature/jenny
-## 🏗 Roadmap
-- [x] Claude Vision Resume Parsing
-- [x] SendGrid Asynchronous Notification Pipeline
-- [x] Atomic Thread-Lock Claiming Mechanism
-- [x] 48h Timeout Falling back to AI Interviewer
-- [ ] **Next Step**: Transition In-memory states to persistent **MCP Database Layer (Supabase)**.
-
-Supabase project: `https://bcwegwxwyaquycsiyhkx.supabase.co`
-Request access from the project owner.  
-You can view tables visualized on browser.
-
-## google form
-
-url: form link: https://docs.google.com/forms/d/e/1FAIpQLSdlWd0dXB5bMqNm-0bD9uEAz3QpR_8DU50fl_3a0ZdXhpDU4A/viewform?usp=publish-editor
-main
+- No direct push to `main`
+- Branch naming: `feature/<name>` e.g. `feature/webhook`, `feature/matching`
+- Merge to `main` via Pull Requests only
