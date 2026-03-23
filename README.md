@@ -33,6 +33,10 @@ BASE_URL=https://your-railway-url.up.railway.app
 DATABASE_URL=your_postgres_connection_string
 ```
 
+### Supabase Database
+
+The database is hosted on Supabase and has a visual, interactive dashboard where you can browse and edit tables directly in the browser. Request access from the project owner to view it.
+
 ### Supabase Migrations
 
 Link your project and apply schema migrations:
