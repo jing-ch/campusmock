@@ -12,7 +12,7 @@ SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 sg = SendGridAPIClient(SENDGRID_API_KEY)
 
 # 统一发件人为已验证的邮箱
-FROM_EMAIL = 'example@northeastern.edu'
+FROM_EMAIL = os.getenv('FROM_EMAIL', 'example@northeastern.edu')
 
 def send_interviewer_pool_confirmation(interviewer_email: str):
     """Post-submit email for interviewer-only users."""

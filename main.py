@@ -1,16 +1,17 @@
 import logging
+import time
 from datetime import datetime
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 
-# 导入自定义模块
+# 导入业务模块
 from webhook import router as webhook_router
 from accept import router as accept_router
 from cron import start_cron_jobs
 
 # --- 1. 配置全局日志 (Standard Logging Configuration) ---
-# 确保所有模块的日志输出格式统一，包含时间戳 [cite: 2026-03-21]
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -39,7 +40,6 @@ async def lifespan(app: FastAPI):
     logger.info("--- [SHUTDOWN] CampusMock AI Service is shutting down ---")
 
 # --- 3. 实例化 FastAPI ---
-# 仅定义一次实例，避免路由被覆盖 [cite: 2026-03-21]
 app = FastAPI(
     title="CampusMock AI Service",
     description="Backend orchestration for resume parsing, matching, and interview claiming.",
@@ -47,28 +47,44 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# --- 4. 挂载业务路由 (API Versioning) ---
-# 使用 /api/v1 前缀符合生产环境规范 [cite: 2026-03-21]
+# --- 4. 配置中间件 (CORS) ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 配置模板目录
+templates = Jinja2Templates(directory="templates")
+
+# --- 5. 挂载业务路由 (API Versioning) ---
+# 使用 /api/v1 前缀确保与测试脚本和前端调用一致 [cite: 2026-03-21]
 app.include_router(webhook_router, prefix="/api/v1", tags=["Matching"])
 app.include_router(accept_router, prefix="/api/v1", tags=["Acceptance"])
 
-templates = Jinja2Templates(directory="templates")
+# --- 6. 基础接口 (General Endpoints) ---
 
-# --- 5. 基础状态接口 (General Endpoints) ---
 @app.get("/form", tags=["General"])
 async def form(request: Request):
+    """渲染前端表单页面"""
     return templates.TemplateResponse("form.html", {"request": request})
 
-@app.get("/health", tags=["General"])
-def health():
+@app.get("/api/v1/health", tags=["General"])
+async def health_check():
     """
-    系统健康检查接口
+    系统健康检查接口 (满足 test_full_flow.py 要求)
     动态返回当前日期和 ISO 时间戳 [cite: 2026-03-21]
     """
     now = datetime.now()
     return {
-        "status": "ok", 
-        "current_date": now.strftime("%Y-%m-%d"), # 格式化为 2026-03-21 [cite: 2026-03-21]
-        "timestamp": now.isoformat(), # 精确到秒的时间戳 [cite: 2026-03-21]
-        "timezone": "PDT (Seattle)" # 对应你所在的西雅图时区
+        "status": "online",
+        "current_date": now.strftime("%Y-%m-%d"),
+        "timestamp": now.isoformat(),
+        "service": "campusmock-backend"
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    # 本地开发使用，部署时通常由 gunicorn 或 uvicorn 命令行驱动
+    uvicorn.run(app, host="127.0.0.1", port=8000)
