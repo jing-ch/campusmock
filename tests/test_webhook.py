@@ -47,7 +47,7 @@ def cleanup():
 def test_upsert_user():
     row = upsert_user(DUMMY_USER)
     assert row["email"] == TEST_EMAIL
-    assert row["role"] == "requester"
+    assert row["user_type"] == "requester"
 
 
 def test_insert_request():
