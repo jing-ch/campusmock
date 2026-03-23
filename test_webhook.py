@@ -24,7 +24,7 @@ DUMMY_USER = UserUpsert(
     enrollment_semester="2024 Spring",
     cultural_background="East Asian",
     availability="weekday_evening",
-    role="requester",
+    user_type="requester",
 )
 
 PARSED_SLOTS = [

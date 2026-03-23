@@ -12,7 +12,7 @@ class UserUpsert(BaseModel):
     enrollment_semester: str
     cultural_background: str
     availability: str
-    role: str  # "requester" | "interviewer_only"
+    user_type: str  # "requester" | "interviewer_only"
     languages: Optional[str] = None
     cv_pdf: Optional[str] = None    # base64-encoded original PDF, kept as fallback
     cv_parsed: Optional[dict] = None  # structured JSON parsed from CV by Claude

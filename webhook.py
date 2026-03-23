@@ -43,7 +43,7 @@ async def _process_submission(payload: dict):
         enrollment_semester=payload.get("enrollment", ""),
         cultural_background=cultural_background,
         availability=availability,
-        role="requester" if is_requester else "interviewer_only",
+        user_type="requester" if is_requester else "interviewer_only",
         cv_pdf=cv_pdf,
         cv_parsed=cv_parsed,
     )
