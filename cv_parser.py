@@ -30,7 +30,7 @@ def _parse_png(png_bytes: bytes) -> dict | None:
         client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
         b64 = base64.standard_b64encode(png_bytes).decode("utf-8")
         response = client.messages.create(
-            model="claude-haiku-4-5-20251001",
+            model=os.environ["CV_PARSER_MODEL"],
             max_tokens=1024,
             messages=[{
                 "role": "user",
