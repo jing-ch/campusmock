@@ -8,6 +8,7 @@ apscheduler
 python-dotenv
 httpx
 jinja2
+aiofiles
 python-multipart
 requests
 pytest
