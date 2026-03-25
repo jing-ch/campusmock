@@ -27,6 +27,9 @@ async def lifespan(app: FastAPI):
     Shutdown: 停止资源占用
     """
     logger.info("--- [STARTUP] CampusMock AI Service is initializing ---")
+    import os
+    for key in ["SUPABASE_URL", "SUPABASE_SERVICE_KEY", "ANTHROPIC_API_KEY", "SENDGRID_API_KEY"]:
+        logger.info(f"ENV {key}: {'SET' if os.environ.get(key) else 'MISSING'}")
     
     try:
         # 启动处理 48h 超时逻辑的后台任务
