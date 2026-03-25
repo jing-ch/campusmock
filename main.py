@@ -2,9 +2,9 @@ import logging
 import time
 from datetime import datetime
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
 
 # 导入业务模块
 from webhook import router as webhook_router
@@ -55,9 +55,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 配置模板目录
-templates = Jinja2Templates(directory="templates")
-
 # --- 5. 挂载业务路由 (API Versioning) ---
 # 使用 /api/v1 前缀确保与测试脚本和前端调用一致 [cite: 2026-03-21]
 app.include_router(webhook_router, prefix="/api/v1", tags=["Matching"])
@@ -80,9 +77,8 @@ async def health_check_root():
     }
 
 @app.get("/form", tags=["General"])
-async def form(request: Request):
-    """渲染前端表单页面"""
-    return templates.TemplateResponse("form.html", {"request": request})
+async def form():
+    return FileResponse("templates/form.html")
 
 @app.get("/api/v1/health", tags=["General"])
 async def health_check():
