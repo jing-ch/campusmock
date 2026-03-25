@@ -59,7 +59,8 @@ async def accept_request(
             logger.info(f"✅ 抢单成功: {req_id} 被 {intv_id} 领取")
             
             # 4. 异步发送通知
-            student_email = request_data.get("email") 
+            requester = get_user_by_id(request_data.get("requester_id"))
+            student_email = requester.get("email") if requester else None
             if student_email:
                 background_tasks.add_task(send_confirmation_email, student_email, interviewer_name)
             
