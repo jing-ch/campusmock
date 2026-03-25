@@ -7,7 +7,7 @@ sendgrid
 apscheduler
 python-dotenv
 httpx
-jinja2
+jinja2==3.1.3
 aiofiles
 python-multipart
 requests
