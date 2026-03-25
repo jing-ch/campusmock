@@ -65,6 +65,20 @@ app.include_router(accept_router, prefix="/api/v1", tags=["Acceptance"])
 
 # --- 6. 基础接口 (General Endpoints) ---
 
+@app.get("/", tags=["General"])
+async def root():
+    return {"status": "ok", "service": "campusmock-backend"}
+
+@app.get("/health", tags=["General"])
+async def health_check_root():
+    now = datetime.now()
+    return {
+        "status": "online",
+        "current_date": now.strftime("%Y-%m-%d"),
+        "timestamp": now.isoformat(),
+        "service": "campusmock-backend"
+    }
+
 @app.get("/form", tags=["General"])
 async def form(request: Request):
     """渲染前端表单页面"""
