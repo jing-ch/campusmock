@@ -54,14 +54,20 @@ def find_best_matches(requester_payload: Dict, interviewer_pool: List[Dict]) -> 
     核心匹配引擎：实现“专业优先 -> 模糊扩展 -> AI 兜底”逻辑
     """
     req_major = requester_payload.get("major")
+    # 获取当前申请人的唯一标识
+    req_id = requester_payload.get("id")
+    req_email = requester_payload.get("email")
+    
     related_majors = get_related_majors(req_major)
     
     logger.info(f"开始匹配：目标专业 [{req_major}]，搜索范围 {related_majors}")
 
-    # 1. 初步筛选：寻找专业簇内的面试官
+    # 1. 初步筛选：寻找专业簇内的面试官，并【排除申请人本人】
     potential_matches = [
         intv for intv in interviewer_pool 
-        if intv.get("major") in related_majors
+        if (intv.get("major") in related_majors) and 
+           (intv.get("id") != req_id) and           # 过滤相同 ID
+           (intv.get("email") != req_email)       # 过滤相同 Email
     ]
 
     # 2. 如果找到真人，进行评分排序
