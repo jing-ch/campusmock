@@ -10,7 +10,7 @@
   <div class="max-w-xl mx-auto bg-white rounded-2xl shadow p-8">
 
     <h1 class="text-2xl font-bold text-gray-800 mb-1">CampusMock</h1>
-    <p class="text-gray-500 mb-8">Find your mock interview partner at NEU Seattle.</p>
+    <p class="text-gray-500 mb-8">Because practicing with a friend beats talking to a wall.</p>
 
     <form id="campusForm" novalidate class="space-y-7">
 
@@ -165,6 +165,15 @@
       el.textContent = text;
     }
 
+    function setFieldError(input, hasError) {
+      if (hasError) {
+        input.classList.add("border-red-400");
+        input.classList.remove("border-gray-300");
+      } else {
+        input.classList.remove("border-red-400");
+      }
+    }
+
     document.getElementById("campusForm").addEventListener("submit", async function(e) {
       e.preventDefault();
       const form = e.target;
@@ -172,15 +181,49 @@
 
       try {
         const intentEl = form.querySelector("input[name=intent]:checked");
-        if (!intentEl) { showStatus("Please let us know what you're here for.", true); return; }
+        if (!intentEl) { showStatus("Pick one to get started — we don't bite! 😊", true); return; }
         const isRequester = intentEl.value === "I want a mock interview (and I'll join the interviewer pool)";
 
         const data = Object.fromEntries(new FormData(form).entries());
         data.intent = intentEl.value;
 
+        // Validate required shared fields
+        const requiredFields = ["first_name", "last_name", "email", "college", "major", "enrollment"];
+        let hasError = false;
+        for (const name of requiredFields) {
+          const input = form.querySelector(`[name=${name}]`);
+          const empty = !input.value.trim();
+          setFieldError(input, empty);
+          if (empty) hasError = true;
+        }
+
         // Availability
         data.availability = getChecked("availability_group");
-        if (!data.availability) { showStatus("Please pick at least one time you're free to help.", true); return; }
+        if (!data.availability) hasError = true;
+
+        // CV
+        const cvInput = document.getElementById("cv_input");
+        const cvMissing = cvInput.files.length === 0;
+        setFieldError(cvInput, cvMissing);
+        if (cvMissing) hasError = true;
+
+        // Requester-only: time slots
+        if (isRequester) {
+          for (const name of ["slot_1", "slot_2", "slot_3"]) {
+            const input = form.querySelector(`[name=${name}]`);
+            const empty = !input.value;
+            setFieldError(input, empty);
+            if (empty) hasError = true;
+          }
+        }
+
+        if (hasError) {
+          const msg = !data.availability
+            ? "Don't forget to pick at least one time you're free to help! 🗓"
+            : "Looks like a few fields are still empty — we highlighted them for you! 👆";
+          showStatus(msg, true);
+          return;
+        }
 
         // Slots
         if (data.slot_1) data.slot_1 = data.slot_1 + ":00-08:00";
@@ -188,7 +231,6 @@
         if (data.slot_3) data.slot_3 = data.slot_3 + ":00-08:00";
 
         // CV
-        const cvInput = document.getElementById("cv_input");
         data.cv_base64 = cvInput.files.length > 0 ? await readFileAsBase64(cvInput.files[0]) : "";
 
         btn.disabled = true;
@@ -209,12 +251,12 @@
             false
           );
         } else {
-          showStatus("Server error (" + res.status + "). Please try again.", true);
+          showStatus("Oops, something went wrong on our end (" + res.status + "). Try again?", true);
           btn.disabled = false;
           btn.textContent = "Submit 🚀";
         }
       } catch (err) {
-        showStatus("Could not reach the server: " + err.message, true);
+        showStatus("Couldn't reach the server — check your connection and try again!", true);
         btn.disabled = false;
         btn.textContent = "Submit 🚀";
       }
