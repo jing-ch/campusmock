@@ -14,104 +14,111 @@
 
     <form id="campusForm" novalidate class="space-y-5">
 
-      <!-- Intent -->
-      <div>
+      <!-- Step 1: Intent only -->
+      <div id="stepIntent">
         <label class="label">What are you here for? *</label>
         <div class="space-y-2 mt-1">
           <label class="flex items-start gap-3 cursor-pointer">
             <input type="radio" name="intent" value="I want a mock interview (and I'll join the interviewer pool)"
-              class="mt-1" onchange="toggleRequesterFields(true)" />
-            <span class="text-gray-700">I want a mock interview <span class="text-gray-400 text-sm">(and I'll join the interviewer pool)</span></span>
+              class="mt-1" onchange="onIntentChange(true)" />
+            <span class="text-gray-700">🙋 I need a mock interview (I'll also join as an interviewer)</span>
           </label>
           <label class="flex items-start gap-3 cursor-pointer">
             <input type="radio" name="intent" value="I only want to be an interviewer candidate"
-              class="mt-1" onchange="toggleRequesterFields(false)" />
-            <span class="text-gray-700">I only want to be an interviewer candidate</span>
+              class="mt-1" onchange="onIntentChange(false)" />
+            <span class="text-gray-700">🤝 I just want to help others — sign me up as an interviewer</span>
           </label>
         </div>
       </div>
 
-      <!-- Shared fields -->
-      <div class="flex gap-3">
-        <div class="flex-1">
-          <label class="label">First name *</label>
-          <input type="text" name="first_name" class="input" />
-        </div>
-        <div class="flex-1">
-          <label class="label">Last name *</label>
-          <input type="text" name="last_name" class="input" />
-        </div>
-      </div>
-      <div>
-        <label class="label">NEU email *</label>
-        <input type="email" name="email" placeholder="you@northeastern.edu" class="input" />
-      </div>
-      <div>
-        <label class="label">College *</label>
-        <input type="text" name="college" placeholder="e.g. Khoury College" class="input" />
-      </div>
-      <div>
-        <label class="label">Major *</label>
-        <input type="text" name="major" placeholder="e.g. Computer Science" class="input" />
-      </div>
-      <div>
-        <label class="label">Enrollment semester *</label>
-        <input type="text" name="enrollment" placeholder="e.g. 2024 Spring" class="input" />
-      </div>
-      <div>
-        <label class="label">Cultural background <span class="text-gray-400 text-sm">(optional, for matching)</span></label>
-        <input type="text" name="cultural_background" placeholder="e.g. Chinese, Brazilian, Indian" class="input" />
-      </div>
-      <div>
-        <label class="label">When are you generally free to interview others? *</label>
-        <div class="space-y-2 mt-1" id="availability_group">
-          <label class="flex items-center gap-2"><input type="checkbox" value="weekday_morning" /> Weekday morning</label>
-          <label class="flex items-center gap-2"><input type="checkbox" value="weekday_afternoon" /> Weekday afternoon</label>
-          <label class="flex items-center gap-2"><input type="checkbox" value="weekday_evening" /> Weekday evening</label>
-          <label class="flex items-center gap-2"><input type="checkbox" value="weekend" /> Weekend</label>
-        </div>
-      </div>
-      <div>
-        <label class="label">CV (PDF only) *</label>
-        <input type="file" id="cv_input" accept=".pdf" class="input" />
-      </div>
+      <!-- Step 2: Shared + requester fields, hidden until intent picked -->
+      <div id="stepFields" class="hidden space-y-5">
 
-      <!-- Requester-only fields -->
-      <div id="requesterFields" class="hidden space-y-5">
-        <div>
-          <label class="label">Target company <span class="text-gray-400 text-sm">(optional)</span></label>
-          <input type="text" name="target_company" placeholder="e.g. Google" class="input" />
+        <!-- Shared fields -->
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="label">First name *</label>
+            <input type="text" name="first_name" class="input" />
+          </div>
+          <div class="flex-1">
+            <label class="label">Last name *</label>
+            <input type="text" name="last_name" class="input" />
+          </div>
         </div>
         <div>
-          <label class="label">Role <span class="text-gray-400 text-sm">(optional)</span></label>
-          <input type="text" name="role" placeholder="e.g. SWE Intern, Data Analyst" class="input" />
+          <label class="label">Email address * <span class="text-gray-400 text-sm">(use Gmail — NEU email will eat our messages 😅)</span></label>
+          <input type="email" name="email" placeholder="you@gmail.com" class="input" />
         </div>
         <div>
-          <label class="label">Interview focus <span class="text-gray-400 text-sm">(optional)</span></label>
-          <input type="text" name="focus_area" placeholder="e.g. LeetCode, system design, behavioral" class="input" />
+          <label class="label">College *</label>
+          <input type="text" name="college" placeholder="e.g. Khoury College" class="input" />
         </div>
         <div>
-          <label class="label">Time slot 1 (PT) *</label>
-          <input type="datetime-local" name="slot_1" class="input" />
+          <label class="label">Major *</label>
+          <input type="text" name="major" placeholder="e.g. Computer Science" class="input" />
         </div>
         <div>
-          <label class="label">Time slot 2 (PT) *</label>
-          <input type="datetime-local" name="slot_2" class="input" />
+          <label class="label">When did you enroll? *</label>
+          <input type="text" name="enrollment" placeholder="e.g. 2024 Spring" class="input" />
         </div>
         <div>
-          <label class="label">Time slot 3 (PT) *</label>
-          <input type="datetime-local" name="slot_3" class="input" />
+          <label class="label">Cultural background — we use this for optional matching <span class="text-gray-400 text-sm">(e.g. Chinese, Brazilian, Indian)</span></label>
+          <input type="text" name="cultural_background" placeholder="e.g. Chinese, Brazilian, Indian" class="input" />
         </div>
         <div>
-          <label class="label">Preferred interviewer background <span class="text-gray-400 text-sm">(totally optional)</span></label>
-          <input type="text" name="pref_interviewer_bg" class="input" />
+          <label class="label">When are you generally free to interview others? *</label>
+          <div class="space-y-2 mt-1" id="availability_group">
+            <label class="flex items-center gap-2"><input type="checkbox" value="weekday_morning" /> ☀️ Weekday morning (6am–12pm PT)</label>
+            <label class="flex items-center gap-2"><input type="checkbox" value="weekday_afternoon" /> 🌤 Weekday afternoon (12pm–5pm PT)</label>
+            <label class="flex items-center gap-2"><input type="checkbox" value="weekday_evening" /> 🌙 Weekday evening (5pm–10pm PT)</label>
+            <label class="flex items-center gap-2"><input type="checkbox" value="weekend" /> 🗓 Weekend (any time)</label>
+          </div>
         </div>
-      </div>
+        <div>
+          <label class="label">Drop your CV here (PDF only, please 🙏) *</label>
+          <input type="file" id="cv_input" accept=".pdf" class="input" />
+        </div>
 
-      <button type="submit"
-        class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
-        Submit
-      </button>
+        <!-- Requester-only fields -->
+        <div id="requesterFields" class="hidden space-y-5">
+          <hr class="border-gray-100" />
+          <p class="text-sm font-semibold text-indigo-600">A few more things about your interview 👇</p>
+          <div>
+            <label class="label">What company are you interviewing for? <span class="text-gray-400 text-sm">(optional)</span></label>
+            <input type="text" name="target_company" placeholder="e.g. Google" class="input" />
+          </div>
+          <div>
+            <label class="label">What's the role? <span class="text-gray-400 text-sm">(optional)</span></label>
+            <input type="text" name="role" placeholder="e.g. SWE Intern, Data Analyst" class="input" />
+          </div>
+          <div>
+            <label class="label">What kind of interview do you want to practice? <span class="text-gray-400 text-sm">(optional)</span></label>
+            <input type="text" name="focus_area" placeholder="e.g. LeetCode, system design, behavioral" class="input" />
+          </div>
+          <div>
+            <label class="label">Time slot 1 — when can you do the mock as an interviewee? *</label>
+            <input type="datetime-local" name="slot_1" class="input" />
+          </div>
+          <div>
+            <label class="label">Time slot 2 — when can you do the mock as an interviewee? *</label>
+            <input type="datetime-local" name="slot_2" class="input" />
+          </div>
+          <div>
+            <label class="label">Time slot 3 — when can you do the mock as an interviewee? *</label>
+            <input type="datetime-local" name="slot_3" class="input" />
+          </div>
+          <div>
+            <label class="label">Any preference on your interviewer's cultural background? <span class="text-gray-400 text-sm">(totally optional)</span></label>
+            <input type="text" name="pref_interviewer_bg" class="input" />
+          </div>
+        </div>
+
+        <button type="submit"
+          class="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition">
+          Submit 🚀
+        </button>
+
+      </div>
 
     </form>
 
@@ -123,11 +130,17 @@
     .label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 4px; }
     .input { width: 100%; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 8px 12px; font-size: 0.875rem; outline: none; }
     .input:focus { border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,0.2); }
+    #stepFields { animation: fadeIn 0.3s ease; }
+    #requesterFields { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 
   <script>
-    function toggleRequesterFields(show) {
-      document.getElementById("requesterFields").classList.toggle("hidden", !show);
+    function onIntentChange(isRequester) {
+      // Reveal shared fields
+      document.getElementById("stepFields").classList.remove("hidden");
+      // Show/hide requester-only section
+      document.getElementById("requesterFields").classList.toggle("hidden", !isRequester);
     }
 
     function getChecked(groupId) {
@@ -159,7 +172,7 @@
 
       try {
         const intentEl = form.querySelector("input[name=intent]:checked");
-        if (!intentEl) { showStatus("Please select what you are here for.", true); return; }
+        if (!intentEl) { showStatus("Please let us know what you're here for.", true); return; }
         const isRequester = intentEl.value === "I want a mock interview (and I'll join the interviewer pool)";
 
         const data = Object.fromEntries(new FormData(form).entries());
@@ -167,7 +180,7 @@
 
         // Availability
         data.availability = getChecked("availability_group");
-        if (!data.availability) { showStatus("Please select at least one availability slot.", true); return; }
+        if (!data.availability) { showStatus("Please pick at least one time you're free to help.", true); return; }
 
         // Slots
         if (data.slot_1) data.slot_1 = data.slot_1 + ":00-08:00";
@@ -191,19 +204,19 @@
           form.classList.add("hidden");
           showStatus(
             isRequester
-              ? "You're in the queue — we're finding your best match. Hang tight!"
+              ? "You're in the queue — we're finding your best match. Hang tight! 🙌"
               : "You're in the pool! We'll reach out when someone needs you.",
             false
           );
         } else {
           showStatus("Server error (" + res.status + "). Please try again.", true);
           btn.disabled = false;
-          btn.textContent = "Submit";
+          btn.textContent = "Submit 🚀";
         }
       } catch (err) {
         showStatus("Could not reach the server: " + err.message, true);
         btn.disabled = false;
-        btn.textContent = "Submit";
+        btn.textContent = "Submit 🚀";
       }
     });
   </script>
