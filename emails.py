@@ -19,11 +19,10 @@ def send_interviewer_pool_confirmation(interviewer_email: str):
     message = Mail(
         from_email=FROM_EMAIL,
         to_emails=interviewer_email,
-        subject="[CampusMock] You're in the interviewer pool!",
+        subject="[CampusMock] You're in the pool! 🎉",
         plain_text_content=(
             "Hi there,\n\n"
-            "You're in the pool! We'll reach out when someone needs you.\n\n"
-            "Thanks for helping your fellow NEU students.\n\n"
+            "You're in the pool — thank you for paying it forward! We'll reach out when someone needs you.\n\n"
             "— CampusMock Team"
         ),
     )
@@ -39,11 +38,10 @@ def send_requester_queue_confirmation(requester_email: str):
     message = Mail(
         from_email=FROM_EMAIL,
         to_emails=requester_email,
-        subject="[CampusMock] We're finding your match!",
+        subject="[CampusMock] We're on it! Finding your match 🔍",
         plain_text_content=(
             "Hi there,\n\n"
-            "You're in the queue — we're finding your best match. Hang tight!\n\n"
-            "We'll email you as soon as an interviewer accepts.\n\n"
+            "You're in the queue — we're finding your best match right now. We'll email you as soon as someone accepts. Fingers crossed 🤞\n\n"
             "— CampusMock Team"
         ),
     )
@@ -56,19 +54,13 @@ def send_requester_queue_confirmation(requester_email: str):
 
 def send_match_invitation_email(interviewer_email: str, requester_major: str, accept_url: str):
     """发送匹配邀请 (英文版，中文注释)"""
-    subject = "[CampusMock] New Mock Interview Invitation"
-    content = f"""
-    Hi there,
-    
-    A student from the {requester_major} program has requested a mock interview. 
-    Based on your background, you are a great match!
-    
-    If you are available to help, please click the link below to accept this request:
-    {accept_url}
-    
-    Best regards,
-    CampusMock Team
-    """
+    subject = "[CampusMock] Someone needs your help — mock interview request 👋"
+    content = (
+        "Hi there,\n\n"
+        f"A fellow {requester_major} student is looking for a mock interviewer and you look like a great match! Click below to accept:\n\n"
+        f"{accept_url}\n\n"
+        "— CampusMock Team"
+    )
     
     message = Mail(
         from_email=FROM_EMAIL,
@@ -85,10 +77,14 @@ def send_match_invitation_email(interviewer_email: str, requester_major: str, ac
     except Exception as e:
         logger.error(f"SendGrid API Error: {e}")
 
-def send_confirmation_email(requester_email: str, interviewer_name: str):
+def send_confirmation_email(requester_email: str, interviewer_name: str, interviewer_email: str):
     """发送匹配成功确认"""
-    subject = "[CampusMock] Match Successful!"
-    content = f"Your mock interview request has been accepted by {interviewer_name}."
+    subject = "[CampusMock] You've got a match! 🙌"
+    content = (
+        "Hi there,\n\n"
+        f"{interviewer_name} has agreed to mock interview you! Reach out to them at {interviewer_email} to set up a video call. Good luck 💪\n\n"
+        "— CampusMock Team"
+    )
     
     message = Mail(
         from_email=FROM_EMAIL,
@@ -104,8 +100,12 @@ def send_confirmation_email(requester_email: str, interviewer_name: str):
 
 def send_timeout_notification(requester_email: str):
     """发送 48 小时超时提醒"""
-    subject = "[CampusMock] Update on your Interview Request"
-    content = "We have assigned a specialized AI Interview Agent for you."
+    subject = "[CampusMock] We couldn't find a match this time 😔"
+    content = (
+        "Hi there,\n\n"
+        "No one was available this time around — but don't give up! More interviewers are joining every day. Feel free to submit again anytime.\n\n"
+        "— CampusMock Team"
+    )
     
     message = Mail(
         from_email=FROM_EMAIL,

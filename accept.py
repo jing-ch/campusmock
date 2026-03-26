@@ -61,8 +61,9 @@ async def accept_request(
             # 4. 异步发送通知
             requester = get_user_by_id(request_data.get("requester_id"))
             student_email = requester.get("email") if requester else None
+            interviewer_email = interviewer.get("email") if interviewer else None
             if student_email:
-                background_tasks.add_task(send_confirmation_email, student_email, interviewer_name)
+                background_tasks.add_task(send_confirmation_email, student_email, interviewer_name, interviewer_email or "")
             
             return {
                 "status": "success",
